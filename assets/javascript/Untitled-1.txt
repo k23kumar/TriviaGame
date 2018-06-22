@@ -1,0 +1,105 @@
+class TriviaQuestion {
+    constructor(question, answers, correctAnswerIndex) {
+        this.question = question;
+        this.answers = answers;
+        this.correctAnswerIndex = correctAnswerIndex;
+    }
+}
+
+var triviaQuestions = [new TriviaQuestion("What is the capital of Paraguay?", ["Asuncion", "Encarnacion", "Concepcion", "Ciudad del Este"], 0),
+                // new TriviaQuestion("What is the largest South Ameru=ican country by area?", ["Peru", "Argentina", "Brazil", "Columbia"], 2),
+                // new TriviaQuestion("The driest desert on earth is in South America. What is it's name?", ["La Guajira", "Atacma","Monte", "Patagonian"], 1),
+]
+
+
+    // return div;
+
+$(document).ready(function() {
+    
+    var button1 = $("<button>")
+    button1.appendTo("#trivia-body")
+    button1.text("Start")
+    button1.on('click', function() {
+        $('#trivia-body').empty();
+        startQuiz();
+    });
+
+   function startQuiz() {
+
+    $("<h2>").html("Time Remaining: <span id='time-remaining'>" + timeCounter + "</span> Seconds").appendTo("#trivia-body");
+  
+    var timeCountDown = setInterval(function() {
+        timeCounter--;
+        $("#time-remaining").html(timeCounter);
+        if (timeCounter < 0) {
+            clearInterval(timeCounter);
+            checkAnswers();
+            displayResults();
+        }
+    }, 1000);
+      
+    var form = $("<form>");
+        form.appendTo("#trivia-body");
+
+        for (var i=0; i<triviaQuestions.length; i++) {
+            createTriviaQuestionElement(triviaQuestions[i], i).appendTo(form);
+        }
+        var submitButton = $("<button>");
+        submitButton.appendTo(form);
+        submitButton.text('Submit');
+
+        form.submit(function(event) {
+            event.preventDefault();
+            checkAnswers();
+            displayResults();
+        });
+   }
+
+    // Look through the form, compare the answers and log how many are correct or incorrect (or unanswered)
+   function checkAnswers() {
+       var form1 = document.querySelector("form");
+       var data = new FormData(form1);
+            // Iterate through form data
+       for (const entry of data) {
+           const radioName = entry[0];
+           const radioValue = entry[1];
+            // Get the question number out of radioName, which is a string like 'question0' or 'question13'
+            //   To do this, get the portion of the string after the substring 'question', 
+            //   then convert that to a number using parseInt()
+            //   So, 'question7' becomes 7.
+           const questionNumber = parseInt(radioName.slice('question'.length));
+           // Access the corresponding TriviaQuestion object.
+           const triviaQuestion = triviaQuestions[questionNumber];
+           // Find the correct answer, using the correctAnswerIndex
+           const correctAnswerIndex = triviaQuestion.correctAnswerIndex;
+           const correctAnswer = triviaQuestion.answers[correctAnswerIndex];
+
+           if (correctAnswer === radioValue) {
+               amountCorrect++;
+           }
+           else {
+               amountIncorrect++
+           }
+       }
+       // Calculate amount unanswered
+       amountUnanswered = triviaQuestions.length - (amountCorrect+amountIncorrect);
+   }
+
+   function displayResults() {
+       $("#trivia-body").empty();
+       $("#trivia-body").append( $('<h2>').text('All Done!') );
+       $("#trivia-body").append( $('<h3>').text('Correct Answers:' + amountCorrect) );
+       $("#trivia-body").append( $('<h3>').text('Incorrect Answers:' + amountIncorrect) );
+       $("#trivia-body").append( $('<h3>').text('Unanswered:' + amountUnanswered) );
+   }
+   
+//    displayStart();
+   
+
+});
+
+
+
+
+
+
